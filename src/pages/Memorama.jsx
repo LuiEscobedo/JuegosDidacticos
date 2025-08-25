@@ -201,13 +201,13 @@ const Memorama = () => {
   }, []);
 
   return (
-    <div className="p-6 max-w-6xl mx-auto text-black h-full">
+    <div className="p-6 max-w-6xl mx-auto text-black h-full overflow-hidden ">
       <h1 className="text-3xl font-bold text-center mb-6">
         🎶 Memorama de Artistas y Canciones
       </h1>
 
       {/* Reproductor */}
-      <div className="flex justify-between w-full items-center flex-col md:flex-wrap gap-2">
+      <div className="flex justify-between w-full items-center not-sm:flex-col gap-2">
         {currentSong && (
           <audio
             ref={audioRef}
@@ -218,14 +218,14 @@ const Memorama = () => {
         )}
         <Button
           onClick={handleReset}
-          className="bg-green-500 text-white hover:bg-green-600 w-full rounded-full"
+          className="bg-green-500 text-white hover:bg-green-600 w-full md:w-[25%] rounded-full"
         >
           <FaRedo className="inline mr-2" /> Reiniciar
         </Button>
       </div>
 
       {/* Grid de artistas aleatorio */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 h-[50%] overflow-hidden">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 overflow-auto h-[75svh] pt-5">
         {shuffledArtists.map((artist) => (
           <motion.div
             key={artist.name}
