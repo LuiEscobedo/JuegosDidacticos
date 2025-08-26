@@ -8,7 +8,7 @@ function App() {
   
   return (
     <>
-      <div>
+      <div className='w-full h-full flex justify-center'>
         <Memorama/>
       </div>
     </>

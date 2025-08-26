@@ -1,6 +1,7 @@
 {
   "name": "juegosdidactivos",
   "private": true,
+  "homepage": "http://LuiEscobedo.github.io/JuegosDidacticos",
   "version": "0.0.0",
   "type": "module",
   "scripts": {

@@ -1,128 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { FaCheckCircle, FaTimesCircle, FaRedo } from "react-icons/fa";
-// 👉 Arreglo de artistas
-const artists = [
-    {
-        name: "Julio Jaramillo",
-        image: "../../public/Images/Julio-Jaramillo.jpg",
-        audio:
-            "../../public/Canciones/01 - Julio Jaramillo - Nuestro juramento.mp3",
-        songName: "Nuestro juramento",
-    },
-    {
-        name: "Los Panchos",
-        image: "../../public/Images/Los Panchos.jpeg",
-        audio:
-            "../../public/Canciones/02 - Los Panchos - Quizas, quizas, quizas..mp3",
-        songName: "Quizas, quizas, quizas.",
-    },
-    {
-        name: "Pedro Infante",
-        image: "../../public/Images/Pedro Infante.jpg",
-        audio: "../../public/Canciones/03 - Pedro Infante - Fallaste Corazón.mp3",
-        songName: "Fallaste Corazón",
-    },
-    {
-        name: "Carlos Gardel",
-        image: "../../public/Images/Carlos Garde.jpg",
-        audio:
-            "../../public/Canciones/04 - Carlos Gardel  - El día que me quieras.mp3",
-        songName: "El día que me quieras",
-    },
-    {
-        name: "Agustin Lara",
-        image: "../../public/Images/Agustin Lara.jpg",
-        audio: "../../public/Canciones/05 - Agustin Lara - Amor de mis amores.mp3",
-        songName: "Amor de mis amores",
-    },
-    {
-        name: "Eydie Gorme",
-        image: "../../public/Images/Eydie.jpg",
-        audio:
-            "../../public/Canciones/06 - Eydie Gorme con Los Panchos - Historia de un amor.mp3",
-        songName: "Historia de un amor",
-    },
-    {
-        name: "Los tres diamantes",
-        image: "../../public/Images/Los tres diamantes.jpg",
-        audio:
-            "../../public/Canciones/07 - Los tres diamantes - La Gloria Eres Tu.mp3",
-        songName: "La Gloria Eres Tu",
-    },
-    {
-        name: "Sonora Santanera",
-        image: "../../public/Images/santanera.jpg",
-        audio:
-            "../../public/Canciones/08 - Sonora santanera - Perfume de Gardenia.mp3",
-        songName: "Perfume de Gardenias",
-    },
-    {
-        name: "José José",
-        image: "../../public/Images/jose jose.png",
-        audio: "../../public/Canciones/09 - José José - El Triste.mp3",
-        songName: "El Triste",
-    },
-    {
-        name: "Camilo Sesto",
-        image: "../../public/Images/camilo sesto.jpg",
-        audio: "../../public/Canciones/10 - Camilo Sesto - Jamás.mp3",
-        songName: "Jamás",
-    },
-    {
-        name: "Angelica Maria",
-        image: "../../public/Images/angelica.jpg",
-        audio: "../../public/Canciones/11 - Angelica Maria - Eddy Eddy.mp3",
-        songName: "Eddy Eddy",
-    },
-    {
-        name: "Enrique Guzman",
-        image: "../../public/Images/enrique.jpg",
-        audio: "../../public/Canciones/12 - Enrique Guzman - La plaga.mp3",
-        songName: "La plaga",
-    },
-    {
-        name: "Rocío Dúrcal",
-        image: "../../public/Images/rocio.jpg",
-        audio: "../../public/Canciones/13 - Rocío Dúrcal - Amor eterno.mp3",
-        songName: "Amor eterno",
-    },
-    {
-        name: "Vicente Fernández",
-        image: "../../public/Images/vicente.jpg",
-        audio:
-            "../../public/Canciones/14 - Vicente Fernández - Mujeres Divinas.mp3",
-        songName: "Mujeres Divinas",
-    },
-    {
-        name: "Cesar Costa",
-        image: "../../public/Images/cesar.jpg",
-        audio: "../../public/Canciones/15 - Cesar Costa - Historia De Mi Amor.mp3",
-        songName: "Historia De Mi Amor",
-    },
-    {
-        name: "Los Teen Tops",
-        image: "../../public/Images/teen.jpg",
-        audio:
-            "../../public/Canciones/16 - Los Teen Tops - El Rock de la Cárcel.mp3",
-        songName: "El Rock de la Cárcel",
-    },
-    {
-        name: "Juan Gabriel",
-        image: "../../public/Images/juan.jpeg",
-        audio: "../../public/Canciones/17 - Juan Gabriel - Abrázame Muy Fuerte.mp3",
-        songName: "Abrázame Muy Fuerte",
-    },
-    {
-        name: "Enrique Guzmann2",
-        image: "../../public/Images/enrique.jpg",
-        audio: "../../public/Canciones/18 - Enrique Guzman - Popotitos.mp3",
-        songName: "Popotitos",
-    },
-    // ⚡ Hasta 20 artistas
-];
+import { FaCheckCircle, FaTimesCircle, FaRedo, FaPlay, FaPause } from "react-icons/fa";
+import { artists } from "../helpers/artistas";
 
-// Función para barajar un arreglo
 const shuffleArray = (array) => {
   const newArr = [...array];
   for (let i = newArr.length - 1; i > 0; i--) {
@@ -151,13 +31,20 @@ const Memorama = () => {
   const [currentSong, setCurrentSong] = useState(null);
   const [matches, setMatches] = useState({});
   const [disabledArtists, setDisabledArtists] = useState({});
-  const [wrongSelection, setWrongSelection] = useState(null); // tarjeta roja
+  const [wrongSelection, setWrongSelection] = useState(null);
   const [shuffledArtists, setShuffledArtists] = useState([]);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+
   const audioRef = useRef(null);
 
-  const pickRandomSong = () => {
-    const remaining = artists.filter((artist) => !disabledArtists[artist.name]);
-    if (remaining.length === 0) return;
+  const pickRandomSong = (disabled) => {
+    const remaining = artists.filter((artist) => !disabled[artist.name]);
+    if (remaining.length === 0) {
+      setCurrentSong(null);
+      return;
+    }
     const randomArtist = remaining[Math.floor(Math.random() * remaining.length)];
     setCurrentSong(randomArtist.name);
   };
@@ -166,18 +53,22 @@ const Memorama = () => {
     if (!currentSong || disabledArtists[artist.name]) return;
 
     if (artist.name === currentSong) {
-      // Correcto: marcar verde y limpiar rojo
       setMatches((prev) => ({ ...prev, [artist.name]: true }));
-      setDisabledArtists((prev) => ({ ...prev, [artist.name]: true }));
+      setDisabledArtists((prev) => {
+        const updated = { ...prev, [artist.name]: true };
+
+        if (audioRef.current) {
+          audioRef.current.pause();
+          setIsPlaying(false);
+        }
+
+        setTimeout(() => pickRandomSong(updated), 500);
+
+        return updated;
+      });
       setWrongSelection(null);
       setCurrentSong(null);
-
-      if (audioRef.current) audioRef.current.pause();
-
-      // Nueva canción
-      setTimeout(() => pickRandomSong(), 500);
     } else {
-      // Incorrecto: marcar solo esta tarjeta en rojo
       setWrongSelection(artist.name);
     }
   };
@@ -191,81 +82,174 @@ const Memorama = () => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
+      setIsPlaying(false);
     }
-    pickRandomSong();
+    pickRandomSong({});
   };
 
+  const togglePlay = () => {
+    if (!audioRef.current) return;
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      audioRef.current.play();
+      setIsPlaying(true);
+    }
+  };
+
+  const formatTime = (time) => {
+    if (!time) return "0:00";
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60).toString().padStart(2, "0");
+    return `${minutes}:${seconds}`;
+  };
+
+  // Shuffle inicial y canción aleatoria
   useEffect(() => {
     setShuffledArtists(shuffleArray(artists));
-    pickRandomSong();
+    pickRandomSong({});
   }, []);
 
+  // Listeners de audio
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const updateProgress = () => {
+      setProgress(audio.currentTime);
+      setDuration(audio.duration || 0);
+    };
+
+    const handleEnded = () => setIsPlaying(false);
+
+    audio.addEventListener("timeupdate", updateProgress);
+    audio.addEventListener("ended", handleEnded);
+
+    return () => {
+      audio.removeEventListener("timeupdate", updateProgress);
+      audio.removeEventListener("ended", handleEnded);
+    };
+  }, []);
+
+  // Actualizar src del audio cuando cambia currentSong
+  useEffect(() => {
+    if (!audioRef.current) return;
+    const audio = audioRef.current;
+    const song = artists.find((a) => a.name === currentSong);
+    audio.src = song?.audio || "";
+    audio.currentTime = 0;
+    setProgress(0);
+    setDuration(audio.duration || 0);
+    setIsPlaying(false);
+  }, [currentSong]);
+
   return (
-    <div className="p-6 max-w-6xl mx-auto text-black h-full overflow-hidden ">
-      <h1 className="text-3xl font-bold text-center mb-6">
-        🎶 Memorama de Artistas y Canciones
-      </h1>
-
-      {/* Reproductor */}
-      <div className="flex justify-between w-full items-center not-sm:flex-col gap-2">
-        {currentSong && (
-          <audio
-            ref={audioRef}
-            className="w-full"
-            controls
-            src={artists.find((a) => a.name === currentSong)?.audio}
-          />
-        )}
-        <Button
-          onClick={handleReset}
-          className="bg-green-500 text-white hover:bg-green-600 w-full md:w-[25%] rounded-full"
-        >
-          <FaRedo className="inline mr-2" /> Reiniciar
-        </Button>
+    <div className="w-full md:w-[50%] h-full overflow-hidden flex justify-between flex-col items-center">
+      <div className="flex items-center flex-col">
+        <h1 className="text-3xl font-bold text-center h-20 flex items-center">
+          🎶 Memorama de Artistas y Canciones
+        </h1>
       </div>
-
-      {/* Grid de artistas aleatorio */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 overflow-auto h-[75svh] pt-5">
-        {shuffledArtists.map((artist) => (
-          <motion.div
-            key={artist.name}
-            whileHover={{ scale: 1.05 }}
-            className={`cursor-pointer relative ${disabledArtists[artist.name] ? "opacity-50 pointer-events-none" : ""}`}
-            onClick={() => handleSelectArtist(artist)}
-          >
-            <Card
-              className={`transition border-4 text-black ${
-                matches[artist.name] === true
-                  ? "border-green-500"
-                  : wrongSelection === artist.name
-                  ? "border-red-500"
-                  : "border-transparent"
+      <div className="h-[90%] flex flex-col justify-between">
+        {/* Grid de artistas aleatorio */}
+        <div className="grid grid-cols-2 md:grid-cols-4 overflow-auto gap-4 p-2">
+          {shuffledArtists.map((artist) => (
+            <motion.div
+              key={artist.name}
+              whileHover={{ scale: 1.05 }}
+              className={`cursor-pointer relative ${
+                disabledArtists[artist.name] ? "opacity-50 pointer-events-none" : ""
               }`}
+              onClick={() => handleSelectArtist(artist)}
             >
-              <div className="relative">
-                <img
-                  src={artist.image}
-                  alt={artist.name}
-                  className="w-full h-40 object-cover"
-                />
-                {matches[artist.name] === true && (
-                  <div className="absolute top-0 left-0 right-0 bg-black bg-opacity-50 text-white text-center py-1 font-semibold">
-                    {artist.songName}
-                  </div>
-                )}
+              <Card
+                className={`transition aspe border-4 text-black ${
+                  matches[artist.name] === true
+                    ? "border-green-500"
+                    : wrongSelection === artist.name
+                    ? "border-red-500"
+                    : "border-transparent"
+                }`}
+              >
+                <div className="relative">
+                  <img
+                    src={artist.image}
+                    alt={artist.name}
+                    className="w-full h-40 object-cover"
+                  />
+                  {matches[artist.name] === true && (
+                    <div className="absolute top-0 left-0 right-0 bg-black bg-opacity-50 text-white text-center py-1 font-semibold">
+                      {artist.songName}
+                    </div>
+                  )}
+                </div>
+                <div className="p-4 text-center">
+                  <p className="font-semibold">{artist.name}</p>
+                  {matches[artist.name] === true && (
+                    <FaCheckCircle className="mx-auto text-green-500 mt-2 text-xl" />
+                  )}
+                  {wrongSelection === artist.name && (
+                    <FaTimesCircle className="mx-auto text-red-500 mt-2 text-xl" />
+                  )}
+                </div>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Reproductor estilo Spotify */}
+        <div className="flex flex-col md:flex-row gap-4 items-center bg-gray-900 text-white rounded-t-2xl p-4 bottom-0 w-full left-0 shadow-md">
+          {/* Audio oculto */}
+          <audio ref={audioRef} />
+
+          {currentSong && (
+            <div className="flex items-center gap-4 w-full">
+              {/* Botón Play/Pause */}
+              <button
+                onClick={togglePlay}
+                className="bg-blue-500 p-3 rounded-full hover:bg-blue-600 transition shadow-md"
+              >
+                {isPlaying ? <FaPause /> : <FaPlay />}
+              </button>
+
+              {/* Info canción */}
+              <div className="flex flex-col w-full">
+                <span className="font-semibold text-sm">
+                  {artists.find((a) => a.name === currentSong)?.songName ||
+                    "Reproduce la canción"}
+                </span>
+                
+
+                {/* Barra de progreso */}
+                <div className="flex items-center gap-2">
+                  <span className="text-xs">{formatTime(progress)}</span>
+                  <input
+                    type="range"
+                    min="0"
+                    max={duration || 0}
+                    value={progress}
+                    onChange={(e) => {
+                      const newTime = e.target.value;
+                      audioRef.current.currentTime = newTime;
+                      setProgress(newTime);
+                    }}
+                    className="w-full accent-blue-500"
+                  />
+                  <span className="text-xs">{formatTime(duration)}</span>
+                </div>
               </div>
-              <div className="p-4 text-center">
-                <p className="font-semibold">{artist.name}</p>
-                {matches[artist.name] === true && (
-                  <FaCheckCircle className="mx-auto text-green-500 mt-2 text-xl" />
-                )}
-                {wrongSelection === artist.name && (
-                  <FaTimesCircle className="mx-auto text-red-500 mt-2 text-xl" />
-                )}
-              </div>
-            </Card>
-          </motion.div>
-        ))}
+            </div>
+          )}
+
+          {/* Botón Reiniciar */}
+          <Button
+            onClick={handleReset}
+            className="bg-blue-500 text-white hover:bg-blue-600 w-full md:w-[20%] rounded-full"
+          >
+            <FaRedo className="inline mr-2" /> Reiniciar
+          </Button>
+        </div>
       </div>
     </div>
   );
